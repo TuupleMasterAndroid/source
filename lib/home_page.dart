@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:archlighthr/attendance_hostory_page.dart';
+import 'package:archlighthr/no_data_page.dart';
 import 'package:archlighthr/webportal_page.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/foundation.dart';
@@ -166,7 +167,7 @@ class _HomePageState extends State<HomePage> {
             top: 25,
             right: 8,
             child: PopUpMen(menuList: [
-              PopupMenuItem(
+              /*PopupMenuItem(
                 child: InkWell(
                   onTap: () {
                     log('--------- customer care');
@@ -177,8 +178,8 @@ class _HomePageState extends State<HomePage> {
                     title: Text('Customer Care'),
                   ),
                 ),
-              ),
-              PopupMenuItem(
+              ),*/
+              /*PopupMenuItem(
                 child: InkWell(
                     onTap: () {
                       log('--------- profile');
@@ -186,7 +187,7 @@ class _HomePageState extends State<HomePage> {
                     child: const ListTile(
                         leading: Icon(Icons.account_circle_rounded),
                         title: Text("Profile"))),
-              ),
+              ),*/
               PopupMenuItem(
                 child: InkWell(
                     onTap: () {
@@ -196,7 +197,7 @@ class _HomePageState extends State<HomePage> {
                     child: const ListTile(
                         leading: Icon(Icons.logout), title: Text("Logout"))),
               ),
-              PopupMenuItem(
+              /*PopupMenuItem(
                 child: InkWell(
                     onTap: () {
                       log('---------- delete account');
@@ -205,7 +206,7 @@ class _HomePageState extends State<HomePage> {
                     child: const ListTile(
                         leading: Icon(Icons.person_remove_alt_1),
                         title: Text("Delete Account"))),
-              ),
+              ),*/
             ], icon: const Icon(Icons.settings, size: 25, color: Colors.white)),
           ),
           isLoading
@@ -282,10 +283,34 @@ class _HomePageState extends State<HomePage> {
                       builder: (context) => const AttendanceHistoryPage()));
               break;
             case 4:
+              // ----------- Application -----------
+              if (!mounted) return;
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        const NoDataPage(pageTitle: 'Application', type: 1),
+                  ));
               break;
             case 5:
+              // ----------- Payslip -----------
+              if (!mounted) return;
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        const NoDataPage(pageTitle: 'Payslip', type: 2),
+                  ));
               break;
             case 6:
+              // ----------- Leave -----------
+              if (!mounted) return;
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        const NoDataPage(pageTitle: 'Leave', type: 3),
+                  ));
               break;
             case 7:
               if (!hasInternet) return;
