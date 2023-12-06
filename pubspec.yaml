@@ -34,14 +34,16 @@ dependencies:
   http_parser: ^4.0.2
   flutter_switch: ^0.3.2
   flutter_toggle_tab: ^1.4.1
-  map_launcher: ^2.5.0+1
+  map_launcher: ^3.0.1
   flutter_svg:
-  url_launcher: 6.1.14
+  url_launcher: ^6.2.1
+  flutter_screenutil: ^5.9.0
+  device_info_plus: ^9.1.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  flutter_lints: ^2.0.3
+  flutter_lints: ^3.0.0
 
 flutter:
 

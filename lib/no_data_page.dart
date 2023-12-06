@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -20,7 +22,11 @@ class _NoDataPageState extends State<NoDataPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: Text(widget.pageTitle),
+          iconTheme: const IconThemeData(
+            color: Colors.white, // <-- SEE HERE
+          ),
+          title: Text(widget.pageTitle,
+              style: const TextStyle(color: Colors.white)),
           backgroundColor: ColorConstant.darkColor,
           elevation: 0.0),
       body: SafeArea(
@@ -103,20 +109,55 @@ class _NoDataPageState extends State<NoDataPage> {
       } else {
         data = 'Sorry no data';
       }
-      _infoDialog('title', data);
+
+      if (!mounted) return;
+      bool iPad = await isTablet(context);
+      _infoDialog('title', data, iPad);
       return data;
     } else {
       return 'error';
     }
   }
 
-  _infoDialog(String title, String message) {
-    AwesomeDialog(
-      context: context,
-      dialogType: DialogType.info,
-      animType: AnimType.rightSlide,
-      desc: message,
-      btnOkOnPress: () {},
-    ).show();
+  Future<bool> isTablet(BuildContext context) async {
+    bool isTab = false;
+    if (Platform.isIOS) {
+      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+      IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+      if (iosInfo.model.toLowerCase() == "ipad") {
+        isTab = true;
+      } else {
+        isTab = false;
+      }
+      return isTab;
+    } else {
+      var shortestSide = MediaQuery.of(context).size.shortestSide;
+      if (shortestSide > 600) {
+        isTab = true;
+      } else {
+        isTab = false;
+      }
+      return isTab;
+    }
+  }
+
+  _infoDialog(String title, String message, bool iPad) {
+    if (iPad) {
+      AwesomeDialog(
+        context: context,
+        dialogType: DialogType.info,
+        animType: AnimType.rightSlide,
+        desc: message,
+        btnOkOnPress: () {},
+      ).show();
+    } else {
+      AwesomeDialog(
+        context: context,
+        dialogType: DialogType.info,
+        animType: AnimType.rightSlide,
+        desc: message,
+        btnOkOnPress: () {},
+      ).show();
+    }
   }
 }

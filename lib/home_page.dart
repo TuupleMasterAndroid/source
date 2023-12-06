@@ -6,6 +6,7 @@ import 'package:archlighthr/attendance_hostory_page.dart';
 import 'package:archlighthr/no_data_page.dart';
 import 'package:archlighthr/webportal_page.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -167,46 +168,16 @@ class _HomePageState extends State<HomePage> {
             top: 25,
             right: 8,
             child: PopUpMen(menuList: [
-              /*PopupMenuItem(
-                child: InkWell(
-                  onTap: () {
-                    log('--------- customer care');
-                    customerCare();
-                  },
-                  child: const ListTile(
-                    leading: Icon(Icons.headphones),
-                    title: Text('Customer Care'),
-                  ),
-                ),
-              ),*/
-              /*PopupMenuItem(
-                child: InkWell(
-                    onTap: () {
-                      log('--------- profile');
-                    },
-                    child: const ListTile(
-                        leading: Icon(Icons.account_circle_rounded),
-                        title: Text("Profile"))),
-              ),*/
               PopupMenuItem(
                 child: InkWell(
-                    onTap: () {
+                    onTap: () async {
                       log('---------- logout');
-                      _logOut();
+                      bool iPad = await isTablet(context);
+                      _logOut(iPad);
                     },
                     child: const ListTile(
                         leading: Icon(Icons.logout), title: Text("Logout"))),
               ),
-              /*PopupMenuItem(
-                child: InkWell(
-                    onTap: () {
-                      log('---------- delete account');
-                      //_deleteAccount();
-                    },
-                    child: const ListTile(
-                        leading: Icon(Icons.person_remove_alt_1),
-                        title: Text("Delete Account"))),
-              ),*/
             ], icon: const Icon(Icons.settings, size: 25, color: Colors.white)),
           ),
           isLoading
@@ -252,6 +223,7 @@ class _HomePageState extends State<HomePage> {
             // ----------- Attendance Page -----------
             case 1:
               setState(() {});
+
               if (hasInternet) {
                 log('--------- NET CONNECTED ---------');
                 if (!mounted) return;
@@ -323,7 +295,10 @@ class _HomePageState extends State<HomePage> {
             default:
           }
         } else {
-          _infoDialog('Attendance', 'Your GPS is OFF. Please ON you GPS');
+          if (!mounted) return;
+          bool iPad = await isTablet(context);
+
+          _infoDialog('Attendance', 'Your GPS is OFF. Please ON you GPS', iPad);
         }
       },
       child: FutureBuilder(
@@ -402,68 +377,88 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  _logOut() {
-    AwesomeDialog(
-      context: context,
-      dialogType: DialogType.info,
-      animType: AnimType.rightSlide,
-      title: 'Logout',
-      desc: 'Logout from your account. Are you sure?',
-      btnCancelOnPress: () {},
-      btnOkOnPress: () async {
-        // Remove data for the user data key.
-        final SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.remove('comp_ID');
-        await prefs.remove('br_ID');
-        await prefs.remove('emp_ID');
-        await prefs.remove('emp_Code');
-        await prefs.remove('emP_Name');
-        await prefs.remove('mobile');
-        await prefs.remove('password');
-        _reopenApp();
-      },
-    ).show();
+  Future<bool> isTablet(BuildContext context) async {
+    bool isTab = false;
+    if (Platform.isIOS) {
+      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+      IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+      if (iosInfo.model.toLowerCase() == "ipad") {
+        isTab = true;
+      } else {
+        isTab = false;
+      }
+      return isTab;
+    } else {
+      var shortestSide = MediaQuery.of(context).size.shortestSide;
+      if (shortestSide > 600) {
+        isTab = true;
+      } else {
+        isTab = false;
+      }
+      return isTab;
+    }
+  }
+
+  _logOut(bool iPad) {
+    if (iPad) {
+      AwesomeDialog(
+        context: context,
+        width: 500,
+        dialogType: DialogType.info,
+        animType: AnimType.rightSlide,
+        title: 'Logout',
+        desc: 'Logout from your account. Are you sure?',
+        btnCancelOnPress: () {},
+        btnOkOnPress: () async {
+          // Remove data for the user data key.
+          final SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.remove('comp_ID');
+          await prefs.remove('br_ID');
+          await prefs.remove('emp_ID');
+          await prefs.remove('emp_Code');
+          await prefs.remove('emP_Name');
+          await prefs.remove('mobile');
+          await prefs.remove('password');
+          _reopenApp();
+        },
+      ).show();
+    } else {
+      AwesomeDialog(
+        context: context,
+        dialogType: DialogType.info,
+        animType: AnimType.rightSlide,
+        title: 'Logout',
+        desc: 'Logout from your account. Are you sure?',
+        btnCancelOnPress: () {},
+        btnOkOnPress: () async {
+          // Remove data for the user data key.
+          final SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.remove('comp_ID');
+          await prefs.remove('br_ID');
+          await prefs.remove('emp_ID');
+          await prefs.remove('emp_Code');
+          await prefs.remove('emP_Name');
+          await prefs.remove('mobile');
+          await prefs.remove('password');
+          _reopenApp();
+        },
+      ).show();
+    }
   }
 
   _reopenApp() {
     Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
   }
 
-  _deleteAccount() {
-    AwesomeDialog(
-      context: context,
-      dialogType: DialogType.infoReverse,
-      animType: AnimType.rightSlide,
-      title: 'Delete Account',
-      titleTextStyle: const TextStyle(
-          color: Colors.red, fontSize: 18, fontWeight: FontWeight.bold),
-      btnOkColor: Colors.red,
-      btnOkText: 'Delete',
-      btnCancelColor: Colors.blue,
-      desc:
-          'Your Account and its data will be remove permanently. You can not login again and can not get your data back again. Are you sure?',
-      btnCancelOnPress: () {},
-      btnOkOnPress: () async {
-        // Remove data for the user data key.
-        /*final SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.remove('comp_ID');
-        await prefs.remove('br_ID');
-        await prefs.remove('emp_ID');
-        await prefs.remove('emp_Code');
-        await prefs.remove('emP_Name');
-        await prefs.remove('mobile');
-        await prefs.remove('password');
-        _reopenApp();*/
-      },
-    ).show();
-  }
-
   _countSqlRecord() async {
-    SqlHelper().countRecord().then((int count) {
+    SqlHelper().countRecord().then((int count) async {
       if (count > 0) {
-        _confirmDialog();
+        bool iPad = await isTablet(context);
+        _confirmDialog(iPad);
       } else {
-        _infoDialog('Sync Data', 'You have no any Offline Attendance Data');
+        bool iPad = await isTablet(context);
+        _infoDialog(
+            'Sync Data', 'You have no any Offline Attendance Data', iPad);
       }
     });
   }
@@ -479,7 +474,7 @@ class _HomePageState extends State<HomePage> {
 
     String dumpDir = Directory('${appDocDir.path}/dump/').path;
     //print(dumpDir);
-    SqlHelper().getAll().then((value) {
+    SqlHelper().getAll().then((value) async {
       List<Map<String, dynamic>> getData = value;
       //print(getData.length);
       if (getData.isNotEmpty) {
@@ -498,7 +493,7 @@ class _HomePageState extends State<HomePage> {
         //print(filePath);
         log('------- start upload image');
 
-        SqlOfflineSync().uploadImage(filePath).then((value) {
+        SqlOfflineSync().uploadImage(filePath).then((value) async {
           log('-------- on complete');
           Map<String, dynamic> map = value;
           String getUrl = map['message'];
@@ -506,7 +501,7 @@ class _HomePageState extends State<HomePage> {
             SqlOfflineSync()
                 .sendAttendance(
                     getUrl, empID, attendanceTime, inOut, getLat, getLan)
-                .then((value) {
+                .then((value) async {
               Map<String, dynamic> map = value;
               if (map['status']) {
                 SqlHelper().deleteRecord(id).whenComplete(() {
@@ -516,70 +511,128 @@ class _HomePageState extends State<HomePage> {
                 });
               } else {
                 log('get error from attendance api');
-                _errorDialog('Fail', 'Unable to Submit your Attendance Data');
+                bool iPad = await isTablet(context);
+                _errorDialog(
+                    'Fail', 'Unable to Submit your Attendance Data', iPad);
               }
             });
           } else {
             log('error on upload image api');
-            _errorDialog('Fail', 'Unable to Upload your Attendance Photo');
+            bool iPad = await isTablet(context);
+            _errorDialog(
+                'Fail', 'Unable to Upload your Attendance Photo', iPad);
           }
-        }).catchError((onError) {
+        }).catchError((onError) async {
           log(onError.toString());
-          _errorDialog('Fail',
-              'Unable to save your Offline Attendance Data ${onError.toString()}');
+          bool iPad = await isTablet(context);
+          _errorDialog(
+              'Fail',
+              'Unable to save your Offline Attendance Data ${onError.toString()}',
+              iPad);
         });
       } else {
         log('----- no row in sql table');
+        bool iPad = await isTablet(context);
+
         _infoDialog('Submit Attendance',
-            'Your Offline Attendance Date submitted Successfully');
+            'Your Offline Attendance Date submitted Successfully', iPad);
       }
     });
   }
 
-  _confirmDialog() {
-    AwesomeDialog(
-      context: context,
-      dialogType: DialogType.info,
-      animType: AnimType.rightSlide,
-      title: 'Sync Data',
-      desc: 'Sync Attendance Data. Are you sure?',
-      btnCancelOnPress: () {},
-      btnOkOnPress: () {
-        setState(() => isLoading = true);
-        _offlineSynchronization();
-      },
-    ).show();
+  _confirmDialog(bool iPad) {
+    if (iPad) {
+      AwesomeDialog(
+        context: context,
+        width: 500,
+        dialogType: DialogType.info,
+        animType: AnimType.rightSlide,
+        title: 'Sync Data',
+        desc: 'Sync Attendance Data. Are you sure?',
+        btnCancelOnPress: () {},
+        btnOkOnPress: () {
+          setState(() => isLoading = true);
+          _offlineSynchronization();
+        },
+      ).show();
+    } else {
+      AwesomeDialog(
+        context: context,
+        dialogType: DialogType.info,
+        animType: AnimType.rightSlide,
+        title: 'Sync Data',
+        desc: 'Sync Attendance Data. Are you sure?',
+        btnCancelOnPress: () {},
+        btnOkOnPress: () {
+          setState(() => isLoading = true);
+          _offlineSynchronization();
+        },
+      ).show();
+    }
   }
 
-  _infoDialog(String title, String message) {
-    setState(() => isLoading = false);
-    AwesomeDialog(
-      context: context,
-      dialogType: DialogType.info,
-      animType: AnimType.rightSlide,
-      title: title,
-      desc: message,
-      btnOkOnPress: () {},
-    ).show();
+  _infoDialog(String title, String message, bool iPad) {
+    if (iPad) {
+      setState(() => isLoading = false);
+      AwesomeDialog(
+        context: context,
+        width: 500,
+        dialogType: DialogType.info,
+        animType: AnimType.rightSlide,
+        title: title,
+        desc: message,
+        btnOkOnPress: () {},
+      ).show();
+    } else {
+      setState(() => isLoading = false);
+      AwesomeDialog(
+        context: context,
+        dialogType: DialogType.info,
+        animType: AnimType.rightSlide,
+        title: title,
+        desc: message,
+        btnOkOnPress: () {},
+      ).show();
+    }
   }
 
-  _errorDialog(String title, String message) {
-    AwesomeDialog(
-      context: context,
-      animType: AnimType.leftSlide,
-      headerAnimationLoop: false,
-      dialogType: DialogType.error,
-      showCloseIcon: true,
-      title: title,
-      desc: message,
-      btnOkOnPress: () {
-        debugPrint('On Click');
-      },
-      btnOkIcon: Icons.check_circle,
-      onDismissCallback: (type) {
-        debugPrint('Dialog Dismiss from callback $type');
-      },
-    ).show();
+  _errorDialog(String title, String message, bool iPad) {
+    if (iPad) {
+      AwesomeDialog(
+        context: context,
+        width: 500,
+        animType: AnimType.leftSlide,
+        headerAnimationLoop: false,
+        dialogType: DialogType.error,
+        showCloseIcon: true,
+        title: title,
+        desc: message,
+        btnOkOnPress: () {
+          debugPrint('On Click');
+        },
+        btnOkIcon: Icons.check_circle,
+        onDismissCallback: (type) {
+          debugPrint('Dialog Dismiss from callback $type');
+        },
+      ).show();
+    } else {
+      AwesomeDialog(
+        context: context,
+        animType: AnimType.leftSlide,
+        headerAnimationLoop: false,
+        dialogType: DialogType.error,
+        showCloseIcon: true,
+        title: title,
+        desc: message,
+        btnOkOnPress: () {
+          debugPrint('On Click');
+        },
+        btnOkIcon: Icons.check_circle,
+        onDismissCallback: (type) {
+          debugPrint('Dialog Dismiss from callback $type');
+        },
+      ).show();
+    }
   }
 
   _restartProcess() {

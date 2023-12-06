@@ -3,11 +3,11 @@
 <plist version="1.0">
 <dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-    <string>This app needs access to location when open.</string>
+    <string>This app needs access to location of the area when give attendance. This information need to avoid any fraud.</string>
     <key>NSLocationAlwaysUsageDescription</key>
-    <string>This app needs access to location when in the background.</string>
+    <string>This app needs access to location of the area when give attendance. This information need to avoid any fraud when app in the background.</string>
     <key>NSCameraUsageDescription</key>
-    <string>This app needs access to camera when open.</string>
+    <string>This app needs access to camera when give attendance to capture the area. This information need to avoid any fraud and not related to user. Image not send to server.</string>
     <key>LSApplicationQueriesSchemes</key>
         	<array>
         			<string>comgooglemaps</string>

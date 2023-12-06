@@ -5,6 +5,7 @@ import 'dart:io';
 
 import 'package:archlighthr/color_constant.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_toggle_tab/flutter_toggle_tab.dart';
@@ -95,7 +96,13 @@ class _AttendancePageState extends State<AttendancePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-            title: const Text('Employee Attendance'),
+            iconTheme: const IconThemeData(
+              color: Colors.white, // <-- SEE HERE
+            ),
+            title: const Text(
+              'Employee Attendance',
+              style: TextStyle(color: Colors.white),
+            ),
             backgroundColor: ColorConstant.darkColor,
             elevation: 0.0),
         body: SafeArea(
@@ -270,8 +277,8 @@ class _SelfImageState extends State<SelfImage> {
     } else {
       log("GPS Service is not enabled, turn on GPS location");
       //print("GPS Service is not enabled, turn on GPS location");
-      _infoDialog(
-          'Attendance', 'GPS Service is not enabled, turn on GPS location');
+
+      _gpsDialog(1);
     }
 
     setState(() {
@@ -385,11 +392,13 @@ class _SelfImageState extends State<SelfImage> {
                           if (lat.isNotEmpty && long.isNotEmpty) {
                             _uploadImage();
                           } else {
-                            _infoDialog('Attendance',
-                                'Your GPS is OFF. Please ON your GPS');
+                            _gpsDialog(2);
                           }
                         },
-                        child: const Text('Attendance'));
+                        child: const Text(
+                          'Attendance',
+                          style: TextStyle(color: Colors.white),
+                        ));
               })
             ],
           ),
@@ -402,23 +411,6 @@ class _SelfImageState extends State<SelfImage> {
   var inOut = 'OFF';
 
   _getImage() {
-    /*return Container(
-      width: 250,
-      height: 250,
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8.0),
-          border: Border.all(width: 4.0, color: Colors.grey)),
-      child: Image.file(File(newPath),
-          width: 150, height: 150, fit: BoxFit.cover, errorBuilder:
-              (BuildContext context, Object exception, StackTrace? stackTrace) {
-        return Padding(
-          padding: const EdgeInsets.all(4.0),
-          child: Image.asset(
-            'assets/self.png',
-          ),
-        );
-      }),
-    );*/
     return Stack(
       children: [
         Container(
@@ -557,17 +549,6 @@ class _SelfImageState extends State<SelfImage> {
     if (response.statusCode == 200) {
       log('--------- success ---------');
       String s = response.body;
-
-      //  {
-      //  "status":true,"
-      //  statusCode":200,
-      //  "message":"Save_Attn_Self_Online",
-      //  "data":[{
-      //  "return_Status":"True",
-      //  "return_Message":"Attn. Data Saved"
-      //  }],
-      //  "pagination":{"loadMore":"0","lastRow":"1","total":"1"}}
-      //print('---------------');
       Map<String, dynamic> map = Map.from(json.decode(s));
       List list = map['data'];
       Map<String, dynamic> mp = list[0];
@@ -578,7 +559,10 @@ class _SelfImageState extends State<SelfImage> {
           attendanceButton = false;
           startAPI = false;
         });
-        _showDialog('Success', message, 'Success', newPath, '');
+        if (!mounted) return;
+        isTablet(context).then((bool isTab) {
+          _showDialog('Success', message, 'Success', newPath, '', isTab);
+        });
       } else {
         String message = mp['return_Message'];
         setState(() {
@@ -586,23 +570,10 @@ class _SelfImageState extends State<SelfImage> {
           attendanceButton = false;
           startAPI = false;
         });
-        _showError('Fail', message);
+        if (!mounted) return;
+        bool isTab = await isTablet(context);
+        _showError('Fail', message, isTab);
       }
-
-      /*final SharedPreferences sharedPreferences =
-          await SharedPreferences.getInstance();
-
-      String? name = sharedPreferences.getString('emP_Name');*/
-
-      /*if (map['attencance_validated'] == 'yes') {
-        String name = map['employee_name'];
-        _showDialog(
-            'Success', 'Employee Name: $name', name, 'Success', newPath);
-      } else {
-        String name = map['employee_name'];
-        _showDialog2(
-            'Fail', '$name Attendance can\'t submitted. Try some time later');
-      }*/
     } else {
       log('--------- fail ---------');
       //print(response.reasonPhrase);
@@ -615,89 +586,143 @@ class _SelfImageState extends State<SelfImage> {
   }
 
   _showDialog(String title, String message, String name, String status,
-      String imagePath) {
-    AwesomeDialog(
-      context: context,
-      animType: AnimType.leftSlide,
-      headerAnimationLoop: false,
-      dialogType: DialogType.success,
-      showCloseIcon: true,
-      title: title,
-      desc: message,
-      btnOkOnPress: () {
-        debugPrint('OnClcik');
-      },
-      btnOkIcon: Icons.check_circle,
-      onDismissCallback: (type) {
-        debugPrint('Dialog Dismiss from callback $type');
-        //_openStatusPage(name, status, imagePath);
-        Navigator.of(context, rootNavigator: true).pop();
-      },
-    ).show();
+      String imagePath, bool isTab) {
+    if (isTab) {
+      AwesomeDialog(
+        context: context,
+        width: 500,
+        animType: AnimType.leftSlide,
+        headerAnimationLoop: false,
+        dialogType: DialogType.success,
+        showCloseIcon: true,
+        title: title,
+        desc: message,
+        btnOkOnPress: () {
+          debugPrint('OnClcik');
+        },
+        btnOkIcon: Icons.check_circle,
+        onDismissCallback: (type) {
+          debugPrint('Dialog Dismiss from callback $type');
+          //_openStatusPage(name, status, imagePath);
+          Navigator.of(context, rootNavigator: true).pop();
+        },
+      ).show();
+    } else {
+      AwesomeDialog(
+        context: context,
+        animType: AnimType.leftSlide,
+        headerAnimationLoop: false,
+        dialogType: DialogType.success,
+        showCloseIcon: true,
+        title: title,
+        desc: message,
+        btnOkOnPress: () {
+          debugPrint('OnClcik');
+        },
+        btnOkIcon: Icons.check_circle,
+        onDismissCallback: (type) {
+          debugPrint('Dialog Dismiss from callback $type');
+          //_openStatusPage(name, status, imagePath);
+          Navigator.of(context, rootNavigator: true).pop();
+        },
+      ).show();
+    }
   }
 
-  _infoDialog(String title, String message) {
+  _infoDialog(String title, String message, bool isTab) {
     setState(() => isLoading = false);
-    AwesomeDialog(
-      context: context,
-      dialogType: DialogType.info,
-      animType: AnimType.rightSlide,
-      title: title,
-      desc: message,
-      btnOkOnPress: () {},
-    ).show();
+    if (isTab) {
+      AwesomeDialog(
+        context: context,
+        width: 500,
+        dialogType: DialogType.info,
+        animType: AnimType.rightSlide,
+        title: title,
+        desc: message,
+        btnOkOnPress: () {},
+      ).show();
+    } else {
+      AwesomeDialog(
+        context: context,
+        dialogType: DialogType.info,
+        animType: AnimType.rightSlide,
+        title: title,
+        desc: message,
+        btnOkOnPress: () {},
+      ).show();
+    }
   }
 
-  _showDialog2(String title, String message) {
-    AwesomeDialog(
-      context: context,
-      animType: AnimType.leftSlide,
-      headerAnimationLoop: false,
-      dialogType: DialogType.error,
-      showCloseIcon: true,
-      title: title,
-      desc: message,
-      btnOkOnPress: () {
-        debugPrint('OnClcik');
-      },
-      btnOkIcon: Icons.check_circle,
-      onDismissCallback: (type) {
-        debugPrint('Dialog Dissmiss from callback $type');
-      },
-    ).show();
+  _showError(String title, String message, bool isTab) {
+    if (isTab) {
+      AwesomeDialog(
+        context: context,
+        width: 500,
+        animType: AnimType.leftSlide,
+        headerAnimationLoop: false,
+        dialogType: DialogType.error,
+        showCloseIcon: true,
+        title: title,
+        desc: message,
+        btnOkOnPress: () {
+          debugPrint('OnClcik');
+        },
+        btnOkIcon: Icons.check_circle,
+        onDismissCallback: (type) {
+          debugPrint('Dialog Dissmiss from callback $type');
+        },
+      ).show();
+    } else {
+      AwesomeDialog(
+        context: context,
+        animType: AnimType.leftSlide,
+        headerAnimationLoop: false,
+        dialogType: DialogType.error,
+        showCloseIcon: true,
+        title: title,
+        desc: message,
+        btnOkOnPress: () {
+          debugPrint('OnClcik');
+        },
+        btnOkIcon: Icons.check_circle,
+        onDismissCallback: (type) {
+          debugPrint('Dialog Dissmiss from callback $type');
+        },
+      ).show();
+    }
   }
 
-  _showError(String title, String message) {
-    AwesomeDialog(
-      context: context,
-      animType: AnimType.leftSlide,
-      headerAnimationLoop: false,
-      dialogType: DialogType.error,
-      showCloseIcon: true,
-      title: title,
-      desc: message,
-      btnOkOnPress: () {
-        debugPrint('OnClcik');
-      },
-      btnOkIcon: Icons.check_circle,
-      onDismissCallback: (type) {
-        debugPrint('Dialog Dissmiss from callback $type');
-      },
-    ).show();
+  _gpsDialog(int type) async {
+    if (type == 1) {
+      bool isTab = await isTablet(context);
+      _infoDialog('Attendance',
+          'GPS Service is not enabled, turn on GPS location', isTab);
+    } else if (type == 2) {
+      bool isTab = await isTablet(context);
+      _infoDialog('Attendance', 'Your GPS is OFF. Please ON your GPS', isTab);
+    }
   }
 
-  _openStatusPage(String empName, String status, String imagePath) {
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => AttendanceStatusPage(
-                empName: empName,
-                status: status,
-                imagePath: imagePath))).then((value) {
-      setState(() {
-        newPath = 'blank';
-      });
-    });
+  Future<bool> isTablet(BuildContext context) async {
+    bool isTab = false;
+    if (Platform.isIOS) {
+      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+      IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+      if (iosInfo.model.toLowerCase() == "ipad") {
+        isTab = true;
+      } else {
+        isTab = false;
+      }
+      return isTab;
+    } else {
+      var shortestSide = MediaQuery.of(context).size.shortestSide;
+      if (shortestSide > 600) {
+        isTab = true;
+      } else {
+        isTab = false;
+      }
+      return isTab;
+    }
   }
 }
 

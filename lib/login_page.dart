@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:archlighthr/my_service/check_innetnet.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -17,7 +19,7 @@ enum FormData {
 }
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+  const LoginPage({super.key});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -36,6 +38,8 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController passwordController = TextEditingController();
   @override
   Widget build(BuildContext context) {
+    // width : 411.42857142857144
+    // height : 707.4285714285714
     return KeyboardAutoDismiss(
       scaffold: Scaffold(
         body: Container(
@@ -52,7 +56,7 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircleAvatar(
+                  const CircleAvatar(
                     backgroundImage: AssetImage('assets/app_icon.jpg'),
                     radius: 50,
                   ),
@@ -217,10 +221,15 @@ class _LoginPageState extends State<LoginPage> {
                                           .then((bool result) {
                                         if (result) {
                                           setState(() => isLoading = true);
+
                                           _logInApi();
                                         } else {
-                                          _infoDialog('User Login',
-                                              'Your Internet is disconnected. Please connect and then login');
+                                          isTablet(context).then((bool isTab) {
+                                            _infoDialog(
+                                                'User Login',
+                                                'Your Internet is disconnected. Please connect and then login',
+                                                isTab);
+                                          });
                                         }
                                       });
                                     }
@@ -347,7 +356,10 @@ class _LoginPageState extends State<LoginPage> {
           _goToHomeScreen();
         } else {
           setState(() => isLoading = false);
-          _showError('Login Fail', mp['return_Message']);
+          if (!mounted) return;
+          isTablet(context).then((bool isTab) {
+            _showError('Login Fail', mp['return_Message'], isTab);
+          });
         }
       } else {
         setState(() => isLoading = false);
@@ -378,34 +390,89 @@ class _LoginPageState extends State<LoginPage> {
         context, MaterialPageRoute(builder: (context) => const HomePage()));
   }
 
-  _showError(String title, String message) {
-    AwesomeDialog(
-      context: context,
-      animType: AnimType.leftSlide,
-      headerAnimationLoop: false,
-      dialogType: DialogType.error,
-      showCloseIcon: true,
-      title: title,
-      desc: message,
-      btnOkOnPress: () {
-        debugPrint('OnClcik');
-      },
-      btnOkIcon: Icons.check_circle,
-      onDismissCallback: (type) {
-        debugPrint('Dialog Dissmiss from callback $type');
-      },
-    ).show();
+  _showError(String title, String message, bool isTab) {
+    if (isTab) {
+      AwesomeDialog(
+        context: context,
+        width: 500,
+        animType: AnimType.leftSlide,
+        headerAnimationLoop: false,
+        dialogType: DialogType.error,
+        showCloseIcon: true,
+        title: title,
+        desc: message,
+        btnOkOnPress: () {
+          debugPrint('OnClick');
+        },
+        btnOkIcon: Icons.check_circle,
+        onDismissCallback: (type) {
+          debugPrint('Dialog Dismiss from callback $type');
+        },
+      ).show();
+    } else {
+      AwesomeDialog(
+        context: context,
+        animType: AnimType.leftSlide,
+        headerAnimationLoop: false,
+        dialogType: DialogType.error,
+        showCloseIcon: true,
+        title: title,
+        desc: message,
+        btnOkOnPress: () {
+          debugPrint('OnClcik');
+        },
+        btnOkIcon: Icons.check_circle,
+        onDismissCallback: (type) {
+          debugPrint('Dialog Dissmiss from callback $type');
+        },
+      ).show();
+    }
   }
 
-  _infoDialog(String title, String message) {
-    setState(() => isLoading = false);
-    AwesomeDialog(
-      context: context,
-      dialogType: DialogType.info,
-      animType: AnimType.rightSlide,
-      title: title,
-      desc: message,
-      btnOkOnPress: () {},
-    ).show();
+  _infoDialog(String title, String message, bool isTab) {
+    if (isTab) {
+      setState(() => isLoading = false);
+      AwesomeDialog(
+        context: context,
+        width: 500,
+        dialogType: DialogType.info,
+        animType: AnimType.rightSlide,
+        title: title,
+        desc: message,
+        btnOkOnPress: () {},
+      ).show();
+    } else {
+      setState(() => isLoading = false);
+      AwesomeDialog(
+        context: context,
+        dialogType: DialogType.info,
+        animType: AnimType.rightSlide,
+        title: title,
+        desc: message,
+        btnOkOnPress: () {},
+      ).show();
+    }
+  }
+
+  Future<bool> isTablet(BuildContext context) async {
+    bool isTab = false;
+    if (Platform.isIOS) {
+      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+      IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+      if (iosInfo.model.toLowerCase() == "ipad") {
+        isTab = true;
+      } else {
+        isTab = false;
+      }
+      return isTab;
+    } else {
+      var shortestSide = MediaQuery.of(context).size.shortestSide;
+      if (shortestSide > 600) {
+        isTab = true;
+      } else {
+        isTab = false;
+      }
+      return isTab;
+    }
   }
 }
