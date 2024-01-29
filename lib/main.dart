@@ -29,15 +29,15 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       //home: const MyHomePage(title: 'Flutter Demo Home Page'),
-      //home: const LoginPage(),
-      //home: const TestPage(),
+
+      // ******* start here *******
       home: const MySplashScreen(),
     );
   }
 }
 
 class MySplashScreen extends StatefulWidget {
-  const MySplashScreen({Key? key}) : super(key: key);
+  const MySplashScreen({super.key});
 
   @override
   State<MySplashScreen> createState() => _MySplashScreenState();
@@ -84,12 +84,12 @@ class _MySplashScreenState extends State<MySplashScreen> {
 
   _isLogIn() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String? emp_ID = prefs.getString('emp_ID');
+    final String? empID = prefs.getString('emp_ID');
     final String? password = prefs.getString('password');
     final String? loginDeviceID = prefs.getString('loginDeviceID');
-    if (emp_ID != null && password != null && loginDeviceID != null) {
+    if (empID != null && password != null && loginDeviceID != null) {
       log('----- you are log in -----');
-      _logInApi(emp_ID, password, loginDeviceID);
+      _logInApi(empID, password, loginDeviceID);
     } else {
       log('----- you are not log in -----');
       _goToLogInPage();
@@ -98,10 +98,10 @@ class _MySplashScreenState extends State<MySplashScreen> {
 
   _offlineModeCheckLogin() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String? emp_ID = prefs.getString('emp_ID');
+    final String? empID = prefs.getString('emp_ID');
     final String? password = prefs.getString('password');
     final String? loginDeviceID = prefs.getString('loginDeviceID');
-    if (emp_ID != null && password != null && loginDeviceID != null) {
+    if (empID != null && password != null && loginDeviceID != null) {
       log('----- you are log in -----');
       _goToHomeScreen();
     } else {

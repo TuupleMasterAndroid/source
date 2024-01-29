@@ -8,14 +8,13 @@ import 'color_constant.dart';
 
 class AttendanceStatusPage extends StatefulWidget {
   const AttendanceStatusPage(
-      {Key? key,
+      {super.key,
       required String empName,
       required String status,
       required String imagePath})
       : _empName = empName,
         _status = status,
-        _imagePath = imagePath,
-        super(key: key);
+        _imagePath = imagePath;
   final String _empName;
   final String _status;
   final String _imagePath;

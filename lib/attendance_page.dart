@@ -21,7 +21,7 @@ import 'attendance_status_page.dart';
 import 'my_camera.dart';
 
 class AttendancePage extends StatefulWidget {
-  const AttendancePage({Key? key}) : super(key: key);
+  const AttendancePage({super.key});
 
   @override
   State<AttendancePage> createState() => _AttendancePageState();
@@ -211,9 +211,8 @@ class _AttendancePageState extends State<AttendancePage> {
 }
 
 class SelfImage extends StatefulWidget {
-  const SelfImage({Key? key, required String serverAttendanceStatus})
-      : _serverAttendanceStatus = serverAttendanceStatus,
-        super(key: key);
+  const SelfImage({super.key, required String serverAttendanceStatus})
+      : _serverAttendanceStatus = serverAttendanceStatus;
   final String _serverAttendanceStatus;
   @override
   State<SelfImage> createState() => _SelfImageState();
@@ -542,7 +541,7 @@ class _SelfImageState extends State<SelfImage> {
     String attendanceTime = DateFormat('yyyy-MM-dd HH:mm').format(serverTime);
     var body =
         '{"emp_id": "$empID", "in_out": "$inOut", "lat": "$lat", "long": "$long", "emp_photo": "$imageUrl", "app_capture_time": "$attendanceTime"}';
-    print(body);
+    //print(body);
 
     final response = await http.post(uri, headers: headers, body: body);
 
@@ -727,9 +726,8 @@ class _SelfImageState extends State<SelfImage> {
 }
 
 class TeamImage extends StatefulWidget {
-  const TeamImage({Key? key, required String serverAttendanceStatus})
-      : _serverAttendanceStatus = serverAttendanceStatus,
-        super(key: key);
+  const TeamImage({super.key, required String serverAttendanceStatus})
+      : _serverAttendanceStatus = serverAttendanceStatus;
   final String _serverAttendanceStatus;
 
   @override

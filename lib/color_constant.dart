@@ -7,4 +7,8 @@ class ColorConstant {
 
   static const Color darkComplementary1 = Color(0xFF77612b);
   static const Color darkComplementary2 = Color(0xFF67772b);
+
+  static const Color pageBackGround = Color(0xFFCAD7DD);
+
+  static const Color buttonColor = Color(0xFF3C8DBC);
 }

@@ -4,6 +4,12 @@
     <!--#docregion android-queries-->
     <!-- Provide required visibility configuration for API level 30 and above -->
     <queries>
+        <!-- If your app open web page -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="https" />
+        </intent>
         <!-- If your app checks for call support -->
         <intent>
             <action android:name="android.intent.action.VIEW" />

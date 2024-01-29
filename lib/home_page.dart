@@ -3,7 +3,9 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:archlighthr/attendance_hostory_page.dart';
+import 'package:archlighthr/leave_page.dart';
 import 'package:archlighthr/no_data_page.dart';
+import 'package:archlighthr/payslip_list_page.dart';
 import 'package:archlighthr/webportal_page.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:device_info_plus/device_info_plus.dart';
@@ -24,7 +26,7 @@ import 'mysql/sql_offline_sync.dart';
 import 'offline_attendance_page.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -266,23 +268,31 @@ class _HomePageState extends State<HomePage> {
               break;
             case 5:
               // ----------- Payslip -----------
+              //emP_Name
+              final SharedPreferences prefs =
+                  await SharedPreferences.getInstance();
+              final String? empName = prefs.getString('emP_Name');
               if (!mounted) return;
+
               Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        const NoDataPage(pageTitle: 'Payslip', type: 2),
-                  ));
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      PayslipListPage(employeeName: empName ?? ''),
+                ),
+              );
+
               break;
             case 6:
               // ----------- Leave -----------
               if (!mounted) return;
-              Navigator.push(
+             /* Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) =>
                         const NoDataPage(pageTitle: 'Leave', type: 3),
-                  ));
+                  ));*/
+              Navigator.push(context, MaterialPageRoute(builder: (context) => LeavePage(),));
               break;
             case 7:
               if (!hasInternet) return;
@@ -359,12 +369,23 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  openWebPage() async {
+    String uri =
+        'http://johhr.compacct.cloud/Report/Crystal_Files/CRM/joh_Form/Joh_Salary_slip.aspx?Emp_ID=28&SLDate=01/Dec/2023';
+    uri = 'https://pub.dev/packages/url_launcher';
+    if (await canLaunchUrl(Uri.parse(uri))) {
+      await launchUrl(Uri.parse(uri));
+    } else {
+      throw 'Could not launch Uri';
+    }
+  }
+
   Future<void> customerCare() async {
     Uri? phoneNo;
     if (defaultTargetPlatform == TargetPlatform.android) {
       phoneNo = Uri.parse('tel:9007716803');
     }
-    if (TargetPlatform == TargetPlatform.iOS) {
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
       phoneNo = Uri.parse('tel://9007716803');
     }
 
@@ -667,8 +688,7 @@ class PopUpMen extends StatelessWidget {
   final List<PopupMenuEntry> menuList;
   final Widget? icon;
 
-  const PopUpMen({Key? key, required this.menuList, this.icon})
-      : super(key: key);
+  const PopUpMen({super.key, required this.menuList, this.icon});
 
   @override
   Widget build(BuildContext context) {

@@ -8,7 +8,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 class MyCamera extends StatefulWidget {
-  const MyCamera({Key? key}) : super(key: key);
+  const MyCamera({super.key});
 
   @override
   State<MyCamera> createState() => _MyCameraState();
@@ -84,8 +84,6 @@ class _MyCameraState extends State<MyCamera> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final deviceRatio = size.width / size.height;
     return Scaffold(
       body: SafeArea(
         child: ValueListenableBuilder<bool>(
@@ -287,7 +285,7 @@ class _MyCameraState extends State<MyCamera> {
       double verticalPadding = (imageHeight - ((imageWidth - 2 * 62) / 1)) / 2;
 
       log('image width $imageWidth image height $imageHeight');
-      log('${verticalPadding} ${horizontalPadding}');
+      log('$verticalPadding $horizontalPadding');
       //int finalX = 20;
       //int finalY = 156 * 2;
 
@@ -327,7 +325,7 @@ class _MyCameraState extends State<MyCamera> {
       final newFile = _convertImageToFile(croppedImage, File(newPath).path);
       //print(newFile.toString());
       newFile.then((value) {
-        print(value.toString());
+        log(value.toString());
       });
     }
   }
@@ -370,7 +368,7 @@ class _MyCameraState extends State<MyCamera> {
   Future<File> copyFile(String newPath, String newFileName) async {
     final path = await _localPath;
 
-    return File('$newPath').copy('$path/$newFileName');
+    return File(newPath).copy('$path/$newFileName');
   }
 
   Future<String> get _localPath async {
@@ -385,6 +383,6 @@ class _MyCameraState extends State<MyCamera> {
 
 void _logError(String code, String? message) {
   // ignore: avoid_print
-  print('------------------');
-  print('Error: $code${message == null ? '' : '\nError Message: $message'}');
+  log('------------------');
+  log('Error: $code${message == null ? '' : '\nError Message: $message'}');
 }

@@ -319,6 +319,7 @@ class _LoginPageState extends State<LoginPage> {
     //String? deviceID = 'DFJ5I4QVUW'; //nilanjan
 
     deviceID ??= '';
+    //deviceID = 'DFJ5I4QVUW';
     var headers = {
       'x-functions-key':
           'JGw9wBOm_3KMBwiMx9LcUHckNuWV1hLAcGj_daMYPgStAzFua7bcXw=='
@@ -334,6 +335,7 @@ class _LoginPageState extends State<LoginPage> {
     try {
       final response =
           await http.post(Uri.parse(uri), headers: headers, body: body);
+      debugPrint(response.statusCode.toString());
       if (response.statusCode == 200) {
         String s = response.body;
 
@@ -363,6 +365,11 @@ class _LoginPageState extends State<LoginPage> {
         }
       } else {
         setState(() => isLoading = false);
+        if (!mounted) return;
+        isTablet(context).then((bool isTab) {
+          _showError('Login Fail',
+              'Fail to Login with ${response.statusCode} code', isTab);
+        });
       }
     } catch (e) {
       setState(() => isLoading = false);

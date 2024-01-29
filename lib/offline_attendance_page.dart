@@ -843,10 +843,6 @@ class _SelfImageState extends State<SelfImage> {
     _offlineSynchronization();
   }
 
-  Future _fun1() async {
-    await Future.delayed(const Duration(seconds: 0));
-  }
-
   Future<bool> hasNetwork() async {
     try {
       final result = await InternetAddress.lookup('google.com');
@@ -882,7 +878,7 @@ class _SelfImageState extends State<SelfImage> {
 }
 
 class TeamImage extends StatefulWidget {
-  const TeamImage({Key? key}) : super(key: key);
+  const TeamImage({super.key});
 
   @override
   State<TeamImage> createState() => _TeamImageState();

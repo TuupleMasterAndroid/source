@@ -1,41 +1,30 @@
+import 'package:archlighthr/leave_apply_page.dart';
+import 'package:archlighthr/leave_status_page.dart';
 import 'package:flutter/material.dart';
 
 import 'color_constant.dart';
 
-class TestPage extends StatefulWidget {
-  const TestPage({super.key});
+class LeavePage extends StatefulWidget {
+  const LeavePage({super.key});
 
   @override
-  State<TestPage> createState() => _TestPageState();
+  State<LeavePage> createState() => _LeavePageState();
 }
 
-class _TestPageState extends State<TestPage>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+class _LeavePageState extends State<LeavePage>
+    with AutomaticKeepAliveClientMixin<LeavePage> {
   @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(
-      length: 3,
-      vsync: this,
-    );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _tabController.dispose();
-  }
-
-  final double radius = 12.0;
+  bool get wantKeepAlive => true;
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Scaffold(
+      backgroundColor: ColorConstant.pageBackGround,
       appBar: AppBar(
           iconTheme: const IconThemeData(
             color: Colors.white, // <-- SEE HERE
           ),
-          title: const Text('Payslip', style: TextStyle(color: Colors.white)),
+          title: const Text('Leave', style: TextStyle(color: Colors.white)),
           backgroundColor: ColorConstant.darkColor,
           elevation: 0.0),
       body: DefaultTabController(
@@ -46,20 +35,26 @@ class _TestPageState extends State<TestPage>
               const SizedBox(height: 25),
               Container(
                 height: 45,
-                margin: EdgeInsets.only(left: 12, right: 12),
+                margin: const EdgeInsets.only(left: 12, right: 12),
                 decoration: BoxDecoration(
-                  color: Colors.grey,
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(25),
                 ),
                 child: TabBar(
+                  labelColor: Colors.white,
+                  unselectedLabelColor: Colors.black,
                   indicatorSize: TabBarIndicatorSize.tab,
                   indicator: BoxDecoration(
-                    color: Colors.green[300],
+                    color: Colors.blue,
                     borderRadius: BorderRadius.circular(25),
                   ),
-                  tabs: [Text('Apply'), Text('Status')],
+                  tabs: const [Text('Status'), Text('Apply')],
                 ),
-              )
+              ),
+              const Expanded(
+                  child: TabBarView(
+                children: [LeaveStatusPage(), LeaveApplyPage()],
+              ))
             ],
           ),
         ),

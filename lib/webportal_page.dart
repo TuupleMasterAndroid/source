@@ -7,7 +7,7 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'color_constant.dart';
 
 class WebPortalPage extends StatefulWidget {
-  const WebPortalPage({Key? key}) : super(key: key);
+  const WebPortalPage({super.key});
 
   @override
   State<WebPortalPage> createState() => _WebPortalPageState();
