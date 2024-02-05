@@ -4,9 +4,9 @@ description: A new Flutter project.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 # -------- for google ---------
-version: 1.0.0+2
+#version: 1.0.0+2
 # -------- for apple ---------
-#version: 1.0.1+2
+version: 1.0.2+3
 
 environment:
   sdk: '>=3.0.2 <4.0.0'
