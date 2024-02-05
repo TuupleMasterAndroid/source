@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:archlighthr/my_constant/api_data.dart';
 import 'package:archlighthr/my_service/check_innetnet.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:device_info_plus/device_info_plus.dart';
@@ -319,22 +320,18 @@ class _LoginPageState extends State<LoginPage> {
     //String? deviceID = 'DFJ5I4QVUW'; //nilanjan
 
     deviceID ??= '';
-    //deviceID = 'DFJ5I4QVUW';
-    var headers = {
-      'x-functions-key':
-          'JGw9wBOm_3KMBwiMx9LcUHckNuWV1hLAcGj_daMYPgStAzFua7bcXw=='
-    };
+    //deviceID = 'JOGBT69RRM'; // my device id
 
     String uri =
         'https://arclightmobile.azurewebsites.net/api/Arclight_Commun_Func?Report_Name=Get_Emp_With_Mobile&Sp_Name=SP_Common_Control';
     var body =
         '{"mobile": "${emailController.text.trim()}","password": "${passwordController.text.trim()}", "logindeviceid":"$deviceID"}';
-    //'{"mobile": "9830083322","password": "s1"}';
+    //'{"mobile": "9830083322","password": "s1"}'; UHROUPPZEL
     //'{"mobile": "9903423570","password": "n1"}';
 
     try {
-      final response =
-          await http.post(Uri.parse(uri), headers: headers, body: body);
+      final response = await http.post(Uri.parse(uri),
+          headers: APIData().getAPIHeader(), body: body);
       debugPrint(response.statusCode.toString());
       if (response.statusCode == 200) {
         String s = response.body;
